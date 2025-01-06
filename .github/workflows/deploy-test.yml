@@ -2,14 +2,14 @@ name: Deploy and Test Hardhat Project
 
 on:
   pull_request:
-    types: [closed]
     branches:
       - master
-    labels:
-      - CI:Deploy
+    types:
+      - labeled
 
 jobs:
   deploy:
+    if: github.event.label.name == 'CI:Deploy'
     runs-on: ubuntu-latest
 
     steps:
@@ -24,6 +24,14 @@ jobs:
       with:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_PAT }}
+
+    - name: Install Docker Compose
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y docker-compose
+
+    - name: Export Environment Variable
+      run: echo "DOCKER_HUB_USERNAME=${{ secrets.DOCKER_HUB_USERNAME }}" >> $GITHUB_ENV
 
     - name: Set up Docker Compose
       run: |

@@ -1,16 +1,15 @@
 name: Terraform Apply
 
 on:
-  push:
-    branches:
-      - terraform
   pull_request:
+    branches:
+      - master
     types:
       - labeled
 
 jobs:
   terraform:
-    if: github.event.pull_request.labels.*.name contains 'CI:Terraform'
+    if: github.event.label.name == 'CI:Terraform'
     runs-on: ubuntu-latest
 
     steps:

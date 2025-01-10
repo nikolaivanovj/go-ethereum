@@ -50,8 +50,9 @@ resource "kubernetes_persistent_volume" "geth_pv" {
     persistent_volume_source {
       azure_disk {
         disk_name    = azurerm_managed_disk.geth_disk.name
-        disk_uri     = azurerm_managed_disk.geth_disk.id
+        data_disk_uri = azurerm_managed_disk.geth_disk.id
         kind         = "Managed"
+        caching_mode = "ReadWrite"
       }
     }
   }

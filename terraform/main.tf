@@ -42,15 +42,17 @@ resource "kubernetes_persistent_volume" "geth_pv" {
     name = "geth-data-pv"
   }
   spec {
-    capacity {
-      storage = var.disk_size_gb
+    capacity = {
+      storage = "10Gi"
     }
     access_modes = ["ReadWriteOnce"]
 
-    azure_disk {
-      disk_name    = azurerm_managed_disk.geth_disk.name
-      disk_uri     = azurerm_managed_disk.geth_disk.id
-      kind         = "Managed"
+    persistent_volume_source {
+      azure_disk {
+        disk_name    = azurerm_managed_disk.geth_disk.name
+        disk_uri     = azurerm_managed_disk.geth_disk.id
+        kind         = "Managed"
+      }
     }
   }
 }
@@ -62,8 +64,8 @@ resource "kubernetes_persistent_volume_claim" "geth_pvc" {
   spec {
     access_modes = ["ReadWriteOnce"]
     resources {
-      requests {
-        storage = var.disk_size_gb
+      requests = {
+        storage = "10Gi"
       }
     }
   }

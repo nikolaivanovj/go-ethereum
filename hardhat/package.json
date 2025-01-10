@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.1.0",
-    "@ethersproject/contracts": "^5.0.0",  // Ensured this is added
+    "@ethersproject/contracts": "^5.0.0",
     "glob": "^9.0.0",
     "elliptic": "^6.5.8",
     "ws": "^8.0.0"

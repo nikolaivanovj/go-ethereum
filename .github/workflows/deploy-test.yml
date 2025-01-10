@@ -38,18 +38,23 @@ jobs:
         docker-compose up --build -d
         sleep 10
 
-    - name: Deploy Hardhat Contracts
+    - name: Navigate to Hardhat Directory
+      run: cd hardhat
+
+    - name: Install Dependencies and Audit Fix
       run: |
-        cd hardhat
         npm install
-        npm audit fix         # Apply fixes for vulnerabilities
-        npx hardhat compile   # Compile
-        npx hardhat run scripts/deploy.js
+        npm audit fix
+
+    - name: Compile Contracts
+      run: npx hardhat compile
+
+    - name: Deploy Hardhat Contracts
+      run: npx hardhat run scripts/deploy.js
 
     - name: Run Hardhat Tests
-      run: |
-        cd hardhat
-        npx hardhat test
+      run: npx hardhat test
 
     - name: Shutdown Docker Compose
       run: docker-compose down
+    

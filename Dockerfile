@@ -26,13 +26,13 @@ RUN apk add --no-cache ca-certificates git
 WORKDIR /app
 
 # Copy the package.json and package-lock.json (if available)
-COPY package*.json ./
+COPY hardhat/package*.json ./
 
 # Install Hardhat and other dependencies
 RUN npm install
 
 # Copy the rest of the application code
-COPY . .
+COPY hardhat ./
 
 # Build Geth
 COPY --from=builder /go-ethereum/build/bin/geth /usr/local/bin/

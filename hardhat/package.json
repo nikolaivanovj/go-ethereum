@@ -1,0 +1,30 @@
+{
+  "name": "go-ethereum",
+  "version": "1.0.0",
+  "description": "Golang execution layer implementation of the Ethereum protocol.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "compile": "npx hardhat compile",
+    "deploy": "npx hardhat run scripts/deploy.js",
+    "audit-fix": "npm audit fix --force"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.17"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.1.0",
+    "@ethersproject/contracts": "^5.0.0",
+    "glob": "^9.0.0",
+    "elliptic": "^6.5.8",
+    "ws": "^8.0.0"
+  }
+}

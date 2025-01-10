@@ -42,7 +42,8 @@ jobs:
       run: |
         cd hardhat
         npm install
-        npx hardhat compile   # Added the compile step
+        npm audit fix         # Apply fixes for vulnerabilities
+        npx hardhat compile   # Compile
         npx hardhat run scripts/deploy.js
 
     - name: Run Hardhat Tests

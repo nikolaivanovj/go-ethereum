@@ -1,5 +1,9 @@
 provider "azurerm" {
   features {}
+  subscription_id = var.subscription_id
+  client_id       = var.client_id
+  client_secret   = var.client_secret
+  tenant_id       = var.tenant_id
 }
 
 resource "azurerm_resource_group" "gethdevnetrg" {
@@ -49,10 +53,10 @@ resource "kubernetes_persistent_volume" "geth_pv" {
 
     persistent_volume_source {
       azure_disk {
-        disk_name    = azurerm_managed_disk.geth_disk.name
+        disk_name     = azurerm_managed_disk.geth_disk.name
         data_disk_uri = azurerm_managed_disk.geth_disk.id
-        kind         = "Managed"
-        caching_mode = "ReadWrite"
+        kind          = "Managed"
+        caching_mode  = "ReadWrite"
       }
     }
   }

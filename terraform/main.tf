@@ -3,20 +3,20 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "gethdevnetrg" {
-  name     = "gethdevnetrg"
-  location = "West Europe"
+  name     = var.resource_group_name
+  location = var.location
 }
 
 resource "azurerm_kubernetes_cluster" "gethdevnetaks" {
-  name                = "gethdevnetaks"
+  name                = var.kubernetes_cluster_name
   location            = azurerm_resource_group.gethdevnetrg.location
   resource_group_name = azurerm_resource_group.gethdevnetrg.name
   dns_prefix          = "gethdevnet"
 
   default_node_pool {
     name       = "default"
-    node_count = 1
-    vm_size    = "Standard_DS2_v2"
+    node_count = var.node_count
+    vm_size    = var.vm_size
   }
 
   identity {
@@ -34,7 +34,7 @@ resource "azurerm_managed_disk" "geth_disk" {
   resource_group_name  = azurerm_resource_group.gethdevnetrg.name
   storage_account_type = "Standard_LRS"
   create_option        = "Empty"
-  disk_size_gb         = 10
+  disk_size_gb         = var.disk_size_gb
 }
 
 resource "kubernetes_persistent_volume" "geth_pv" {
@@ -43,7 +43,7 @@ resource "kubernetes_persistent_volume" "geth_pv" {
   }
   spec {
     capacity {
-      storage = "10Gi"
+      storage = var.disk_size_gb
     }
     access_modes = ["ReadWriteOnce"]
 
@@ -63,7 +63,7 @@ resource "kubernetes_persistent_volume_claim" "geth_pvc" {
     access_modes = ["ReadWriteOnce"]
     resources {
       requests {
-        storage = "10Gi"
+        storage = var.disk_size_gb
       }
     }
   }

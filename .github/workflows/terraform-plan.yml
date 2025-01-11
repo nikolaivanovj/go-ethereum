@@ -51,8 +51,5 @@ jobs:
         TF_VAR_tenant_id: ${{ secrets.DOSPN_TENANT_ID }}
       run: terraform -chdir=terraform plan -out=tfplan
 
-    - name: Show Raw Plan Output
-      run: terraform -chdir=terraform show -json tfplan
-
-    - name: Show Plan (Hiding Sensitive Information)
-      run: terraform -chdir=terraform show -json tfplan | jq 'del(.planned_values.root_module.resources[] | select(.type == "azurerm_kubernetes_cluster") | .values.kube_config_raw)' || echo "Failed to parse JSON with jq"
+    # - name: Show Raw Plan Output
+    #   run: terraform -chdir=terraform show -json tfplan

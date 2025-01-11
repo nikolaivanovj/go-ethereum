@@ -53,8 +53,7 @@ jobs:
         -var 'client_id=${{ secrets.DOSPN_CLIENT_ID }}' \
         -var 'client_secret=${{ secrets.DOSPN_CLIENT_SECRET }}' \
         -var 'subscription_id=${{ secrets.DOSPN_SUBSCRIPTION_ID }}' \
-        -var 'tenant_id=${{ secrets.DOSPN_TENANT_ID }}' \
-        -out=tfplan
+        -var 'tenant_id=${{ secrets.DOSPN_TENANT_ID }}'
 
     - name: Show Plan (Hiding Sensitive Information)
       run: terraform -chdir=terraform show -json tfplan | jq 'del(.planned_values.root_module.resources[] | select(.type == "azurerm_kubernetes_cluster") | .values.kube_config_raw)'

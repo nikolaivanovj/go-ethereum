@@ -20,9 +20,6 @@ jobs:
       run: |
         curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
-    - name: Set up Terraform
-      uses: hashicorp/setup-terraform@v2
-
     - name: Verify Environment Variables
       env:
         DOSPN_CLIENT_ID: ${{ secrets.DOSPN_CLIENT_ID }}
@@ -35,13 +32,16 @@ jobs:
         if [ -z "$DOSPN_TENANT_ID" ]; then echo "DOSPN_TENANT_ID is not set"; exit 1; fi
         if [ -z "$DOSPN_SUBSCRIPTION_ID" ]; then echo "DOSPN_SUBSCRIPTION_ID is not set"; exit 1; fi
 
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v2
+
     - name: Terraform Init
       env:
         ARM_CLIENT_ID: ${{ secrets.DOSPN_CLIENT_ID }}
         ARM_CLIENT_SECRET: ${{ secrets.DOSPN_CLIENT_SECRET }}
         ARM_SUBSCRIPTION_ID: ${{ secrets.DOSPN_SUBSCRIPTION_ID }}
         ARM_TENANT_ID: ${{ secrets.DOSPN_TENANT_ID }}
-      run: terraform -chdir=./terraform init -input=false -no-color
+      run: terraform -chdir=terraform init -input=false -no-color
 
     - name: Terraform Plan
       env:
@@ -49,12 +49,12 @@ jobs:
         ARM_CLIENT_SECRET: ${{ secrets.DOSPN_CLIENT_SECRET }}
         ARM_SUBSCRIPTION_ID: ${{ secrets.DOSPN_SUBSCRIPTION_ID }}
         ARM_TENANT_ID: ${{ secrets.DOSPN_TENANT_ID }}
-      run: terraform -chdir=./terraform plan \
-        -var "client_id=${{ secrets.DOSPN_CLIENT_ID }}" \
-        -var "client_secret=${{ secrets.DOSPN_CLIENT_SECRET }}" \
-        -var "subscription_id=${{ secrets.DOSPN_SUBSCRIPTION_ID }}" \
-        -var "tenant_id=${{ secrets.DOSPN_TENANT_ID }}" \
+      run: terraform -chdir=terraform plan \
+        -var 'client_id=${{ secrets.DOSPN_CLIENT_ID }}' \
+        -var 'client_secret=${{ secrets.DOSPN_CLIENT_SECRET }}' \
+        -var 'subscription_id=${{ secrets.DOSPN_SUBSCRIPTION_ID }}' \
+        -var 'tenant_id=${{ secrets.DOSPN_TENANT_ID }}' \
         -out=tfplan
 
     - name: Show Plan (Hiding Sensitive Information)
-      run: terraform -chdir=./terraform show -json tfplan | jq 'del(.planned_values.root_module.resources[] | select(.type == "azurerm_kubernetes_cluster") | .values.kube_config_raw)'
+      run: terraform -chdir=terraform show -json tfplan | jq 'del(.planned_values.root_module.resources[] | select(.type == "azurerm_kubernetes_cluster") | .values.kube_config_raw)'

@@ -1,4 +1,4 @@
-name: Terraform Apply
+name: Terraform Plan
 
 on:
   pull_request:
@@ -9,7 +9,7 @@ on:
 
 jobs:
   terraform:
-    if: github.event.label.name == 'CI:Terraform'
+    if: github.event.label.name == 'CI:Terraform-Plan'
     runs-on: ubuntu-latest
 
     steps:
@@ -28,11 +28,15 @@ jobs:
         ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
         ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
-    - name: Terraform Apply
-      run: terraform apply -auto-approve
+    - name: Terraform Plan
+      run: terraform plan -out=tfplan
       working-directory: ./terraform
       env:
         ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
         ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
         ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
         ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
+    - name: Show Plan (Hiding Sensitive Information)
+      run: terraform show -json tfplan | jq 'del(.planned_values.root_module.resources[] | select(.type == "azurerm_kubernetes_cluster") | .values.kube_config_raw)'
+      working-directory: ./terraform

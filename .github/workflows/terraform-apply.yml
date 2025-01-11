@@ -50,7 +50,3 @@ jobs:
         TF_VAR_subscription_id: ${{ secrets.DOSPN_SUBSCRIPTION_ID }}
         TF_VAR_tenant_id: ${{ secrets.DOSPN_TENANT_ID }}
       run: terraform -chdir=terraform apply -auto-approve
-
-    # Uncomment this if needed for debugging in the future
-    # - name: Show Raw Apply Output
-    #   run: terraform -chdir=terraform show -json

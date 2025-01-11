@@ -44,24 +44,17 @@ jobs:
       uses: hashicorp/setup-terraform@v2
 
     - name: Terraform Init
-      env:
-        ARM_CLIENT_ID: ${{ secrets.DOSPN_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.DOSPN_CLIENT_SECRET }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.DOSPN_SUBSCRIPTION_ID }}
-        ARM_TENANT_ID: ${{ secrets.DOSPN_TENANT_ID }}
       run: terraform init -input=false -no-color
+      working-directory: ./terraform
 
     - name: Terraform Plan
-      env:
-        ARM_CLIENT_ID: ${{ secrets.DOSPN_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.DOSPN_CLIENT_SECRET }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.DOSPN_SUBSCRIPTION_ID }}
-        ARM_TENANT_ID: ${{ secrets.DOSPN_TENANT_ID }}
-        TF_VAR_client_id: ${{ secrets.DOSPN_CLIENT_ID }}
-        TF_VAR_client_secret: ${{ secrets.DOSPN_CLIENT_SECRET }}
-        TF_VAR_subscription_id: ${{ secrets.DOSPN_SUBSCRIPTION_ID }}
-        TF_VAR_tenant_id: ${{ secrets.DOSPN_TENANT_ID }}
-      run: terraform plan -out=tfplan
+      run: terraform plan \
+        -var "client_id=${{ secrets.DOSPN_CLIENT_ID }}" \
+        -var "client_secret=${{ secrets.DOSPN_CLIENT_SECRET }}" \
+        -var "subscription_id=${{ secrets.DOSPN_SUBSCRIPTION_ID }}" \
+        -var "tenant_id=${{ secrets.DOSPN_TENANT_ID }}" \
+        -out=tfplan
+      working-directory: ./terraform
 
     - name: Show Plan (Hiding Sensitive Information)
       run: terraform show -json tfplan | jq 'del(.planned_values.root_module.resources[] | select(.type == "azurerm_kubernetes_cluster") | .values.kube_config_raw)'

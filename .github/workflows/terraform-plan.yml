@@ -20,11 +20,23 @@ jobs:
       run: |
         curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 
+    - name: Verify Environment Variables
+      run: |
+        if [ -z "$DOSPN_CLIENT_ID" ]; then echo "DOSPN_CLIENT_ID is not set"; exit 1; fi
+        if [ -z "$DOSPN_CLIENT_SECRET" ]; then echo "DOSPN_CLIENT_SECRET is not set"; exit 1; fi
+        if [ -z "$DOSPN_TENANT_ID" ]; then echo "DOSPN_TENANT_ID is not set"; exit 1; fi
+        if [ -z "$DOSPN_SUBSCRIPTION_ID" ]; then echo "DOSPN_SUBSCRIPTION_ID is not set"; exit 1; fi
+      env:
+        DOSPN_CLIENT_ID: ${{ secrets.DOSPN_CLIENT_ID }}
+        DOSPN_CLIENT_SECRET: ${{ secrets.DOSPN_CLIENT_SECRET }}
+        DOSPN_TENANT_ID: ${{ secrets.DOSPN_TENANT_ID }}
+        DOSPN_SUBSCRIPTION_ID: ${{ secrets.DOSPN_SUBSCRIPTION_ID }}
+
     - name: Login to Azure CLI
       env:
-        AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-        AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-        AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        AZURE_CLIENT_ID: ${{ secrets.DOSPN_CLIENT_ID }}
+        AZURE_CLIENT_SECRET: ${{ secrets.DOSPN_CLIENT_SECRET }}
+        AZURE_TENANT_ID: ${{ secrets.DOSPN_TENANT_ID }}
       run: |
         az login --service-principal --username $AZURE_CLIENT_ID --password $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
 
@@ -35,19 +47,19 @@ jobs:
       run: terraform init
       working-directory: ./terraform
       env:
-        ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        ARM_CLIENT_ID: ${{ secrets.DOSPN_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.DOSPN_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.DOSPN_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.DOSPN_TENANT_ID }}
 
     - name: Terraform Plan
       run: terraform plan -out=tfplan
       working-directory: ./terraform
       env:
-        ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        ARM_CLIENT_ID: ${{ secrets.DOSPN_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.DOSPN_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.DOSPN_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.DOSPN_TENANT_ID }}
 
     - name: Show Plan (Hiding Sensitive Information)
       run: terraform show -json tfplan | jq 'del(.planned_values.root_module.resources[] | select(.type == "azurerm_kubernetes_cluster") | .values.kube_config_raw)'

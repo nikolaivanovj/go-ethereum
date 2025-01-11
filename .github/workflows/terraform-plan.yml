@@ -29,34 +29,39 @@ jobs:
         az login --service-principal --username $AZURE_CLIENT_ID --password $AZURE_CLIENT_SECRET --tenant $AZURE_TENANT_ID
 
     - name: Verify Environment Variables
-      run: |
-        if [ -z "$DOSPN_CLIENT_ID" ]; then echo "DOSPN_CLIENT_ID is not set"; exit 1; fi
-        if [ -z "$DOSPN_CLIENT_SECRET" ]; then echo "DOSPN_CLIENT_SECRET is not set"; exit 1; fi
-        if [ -z "$DOSPN_TENANT_ID" ]; then echo "DOSPN_TENANT_ID is not set"; exit 1; fi
-        if [ -z "$DOSPN_SUBSCRIPTION_ID" ]; then echo "DOSPN_SUBSCRIPTION_ID is not set"; exit 1; fi
       env:
         DOSPN_CLIENT_ID: ${{ secrets.DOSPN_CLIENT_ID }}
         DOSPN_CLIENT_SECRET: ${{ secrets.DOSPN_CLIENT_SECRET }}
         DOSPN_TENANT_ID: ${{ secrets.DOSPN_TENANT_ID }}
         DOSPN_SUBSCRIPTION_ID: ${{ secrets.DOSPN_SUBSCRIPTION_ID }}
+      run: |
+        if [ -z "$DOSPN_CLIENT_ID" ]; then echo "DOSPN_CLIENT_ID is not set"; exit 1; fi
+        if [ -z "$DOSPN_CLIENT_SECRET" ]; then echo "DOSPN_CLIENT_SECRET is not set"; exit 1; fi
+        if [ -z "$DOSPN_TENANT_ID" ]; then echo "DOSPN_TENANT_ID is not set"; exit 1; fi
+        if [ -z "$DOSPN_SUBSCRIPTION_ID" ]; then echo "DOSPN_SUBSCRIPTION_ID is not set"; exit 1; fi
 
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v2
 
-    - name: Create terraform.tfvars
-      run: |
-        echo 'client_id = "${{ secrets.DOSPN_CLIENT_ID }}"' > ./terraform/terraform.tfvars
-        echo 'client_secret = "${{ secrets.DOSPN_CLIENT_SECRET }}"' >> ./terraform/terraform.tfvars
-        echo 'subscription_id = "${{ secrets.DOSPN_SUBSCRIPTION_ID }}"' >> ./terraform/terraform.tfvars
-        echo 'tenant_id = "${{ secrets.DOSPN_TENANT_ID }}"' >> ./terraform/terraform.tfvars
-
     - name: Terraform Init
-      run: terraform init
-      working-directory: ./terraform
+      env:
+        ARM_CLIENT_ID: ${{ secrets.DOSPN_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.DOSPN_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.DOSPN_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.DOSPN_TENANT_ID }}
+      run: terraform init -input=false -no-color
 
     - name: Terraform Plan
+      env:
+        ARM_CLIENT_ID: ${{ secrets.DOSPN_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.DOSPN_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.DOSPN_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.DOSPN_TENANT_ID }}
+        TF_VAR_client_id: ${{ secrets.DOSPN_CLIENT_ID }}
+        TF_VAR_client_secret: ${{ secrets.DOSPN_CLIENT_SECRET }}
+        TF_VAR_subscription_id: ${{ secrets.DOSPN_SUBSCRIPTION_ID }}
+        TF_VAR_tenant_id: ${{ secrets.DOSPN_TENANT_ID }}
       run: terraform plan -out=tfplan
-      working-directory: ./terraform
 
     - name: Show Plan (Hiding Sensitive Information)
       run: terraform show -json tfplan | jq 'del(.planned_values.root_module.resources[] | select(.type == "azurerm_kubernetes_cluster") | .values.kube_config_raw)'

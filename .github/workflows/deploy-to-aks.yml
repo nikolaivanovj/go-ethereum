@@ -9,7 +9,7 @@ on:
 
 jobs:
   build_and_push:
-    if: github.event.label.name == 'CD:DeployToAKS'
+    if: github.event.label.name == 'CI:DeployToAKS'
     runs-on: ubuntu-latest
 
     steps:
@@ -49,7 +49,7 @@ jobs:
         DOSPN_SUBSCRIPTION_ID: ${{ secrets.DOSPN_SUBSCRIPTION_ID }}
       run: |
         az login --service-principal --username $DOSPN_CLIENT_ID --password $DOSPN_CLIENT_SECRET --tenant $DOSPN_TENANT_ID
-        az aks get-credentials --resource-group myResourceGroup --name myAKSCluster
+        az aks get-credentials --resource-group gethdevnetrg --name gethdevnetaks
 
     - name: Deploy to AKS
       run: |

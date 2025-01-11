@@ -111,7 +111,7 @@ func TestFuzzDeriveSha(t *testing.T) {
 		exp := types.DeriveSha(newDummy(i), trie.NewEmpty(triedb.NewDatabase(rawdb.NewMemoryDatabase(), nil)))
 		got := types.DeriveSha(newDummy(i), trie.NewStackTrie(nil))
 		if !bytes.Equal(got[:], exp[:]) {
-			printList(t, newDummy(seed))
+			printList(newDummy(seed))
 			t.Fatalf("seed %d: got %x exp %x", seed, got, exp)
 		}
 	}
@@ -192,21 +192,15 @@ func (d *dummyDerivableList) EncodeIndex(i int, w *bytes.Buffer) {
 	io.CopyN(w, mrand.New(src), size)
 }
 
-func printList(t *testing.T, l types.DerivableList) {
-	var buf bytes.Buffer
-	_, _ = fmt.Fprintf(&buf, "list length: %d, ", l.Len())
-	buf.WriteString("list: [")
+func printList(l types.DerivableList) {
+	fmt.Printf("list length: %d\n", l.Len())
+	fmt.Printf("{\n")
 	for i := 0; i < l.Len(); i++ {
-		var itemBuf bytes.Buffer
-		l.EncodeIndex(i, &itemBuf)
-		if i == l.Len()-1 {
-			_, _ = fmt.Fprintf(&buf, "\"%#x\"", itemBuf.Bytes())
-		} else {
-			_, _ = fmt.Fprintf(&buf, "\"%#x\",", itemBuf.Bytes())
-		}
+		var buf bytes.Buffer
+		l.EncodeIndex(i, &buf)
+		fmt.Printf("\"%#x\",\n", buf.Bytes())
 	}
-	buf.WriteString("]")
-	t.Log(buf.String())
+	fmt.Printf("},\n")
 }
 
 type flatList []string

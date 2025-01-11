@@ -55,4 +55,4 @@ jobs:
       run: terraform -chdir=terraform show -json tfplan
 
     - name: Show Plan (Hiding Sensitive Information)
-      run: terraform -chdir=terraform show -json tfplan | jq 'del(.planned_values.root_module.resources[] | select(.type == "azurerm_kubernetes_cluster") | .values.kube_config_raw)'
+      run: terraform -chdir=terraform show -json tfplan | jq 'del(.planned_values.root_module.resources[] | select(.type == "azurerm_kubernetes_cluster") | .values.kube_config_raw)' || echo "Failed to parse JSON with jq"

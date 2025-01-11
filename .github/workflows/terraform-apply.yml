@@ -16,52 +16,41 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Install Azure CLI
-      run: |
-        curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
-
-    - name: Login to Azure CLI
-      run: |
-        az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} -p ${{ secrets.AZURE_CLIENT_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
-
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v2
 
-    - name: Terraform Init
-      run: terraform init
-      working-directory: ./terraform
+    - name: Verify Environment Variables
       env:
-        ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        DOSPN_CLIENT_ID: ${{ secrets.DOSPN_CLIENT_ID }}
+        DOSPN_CLIENT_SECRET: ${{ secrets.DOSPN_CLIENT_SECRET }}
+        DOSPN_TENANT_ID: ${{ secrets.DOSPN_TENANT_ID }}
+        DOSPN_SUBSCRIPTION_ID: ${{ secrets.DOSPN_SUBSCRIPTION_ID }}
+      run: |
+        if [ -z "$DOSPN_CLIENT_ID" ]; then echo "DOSPN_CLIENT_ID is not set"; exit 1; fi
+        if [ -z "$DOSPN_CLIENT_SECRET" ]; then echo "DOSPN_CLIENT_SECRET is not set"; exit 1; fi
+        if [ -z "$DOSPN_TENANT_ID" ]; then echo "DOSPN_TENANT_ID is not set"; exit 1; fi
+        if [ -z "$DOSPN_SUBSCRIPTION_ID" ]; then echo "DOSPN_SUBSCRIPTION_ID is not set"; exit 1; fi
 
-    - name: Terraform Plan
-      run: terraform plan -out=tfplan
-      working-directory: ./terraform
+    - name: Terraform Init
       env:
-        ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        ARM_CLIENT_ID: ${{ secrets.DOSPN_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.DOSPN_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.DOSPN_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.DOSPN_TENANT_ID }}
+      run: terraform -chdir=terraform init -input=false -no-color
 
     - name: Terraform Apply
-      id: apply
-      run: terraform apply -auto-approve tfplan | tee apply.log
-      working-directory: ./terraform
       env:
-        ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        ARM_CLIENT_ID: ${{ secrets.DOSPN_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.DOSPN_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.DOSPN_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.DOSPN_TENANT_ID }}
+        TF_VAR_client_id: ${{ secrets.DOSPN_CLIENT_ID }}
+        TF_VAR_client_secret: ${{ secrets.DOSPN_CLIENT_SECRET }}
+        TF_VAR_subscription_id: ${{ secrets.DOSPN_SUBSCRIPTION_ID }}
+        TF_VAR_tenant_id: ${{ secrets.DOSPN_TENANT_ID }}
+      run: terraform -chdir=terraform apply -auto-approve "tfplan"
 
-    - name: Mask Sensitive Information
-      run: |
-        cat apply.log | jq -Rr 'fromjson? | . | del(.resource_changes[]?.change.after.kube_config_raw)' | tee sanitized_apply.log
-      working-directory: ./terraform
-
-    - name: Upload Apply Log
-      uses: actions/upload-artifact@v2
-      with:
-        name: sanitized-apply-log
-        path: ./terraform/sanitized_apply.log
+    # Uncomment this if needed for debugging in the future
+    # - name: Show Raw Apply Output
+    #   run: terraform -chdir=terraform show -json tfplan

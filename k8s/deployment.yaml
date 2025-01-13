@@ -20,7 +20,7 @@ spec:
         - containerPort: 8545
         - containerPort: 8546
         - containerPort: 30303
-        - containerPort: 30303/udp
+        - containerPort: 30303
         command:
         - "geth"
         - "--http"

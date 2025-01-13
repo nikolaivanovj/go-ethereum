@@ -1,39 +1,29 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: v1
+kind: Service
 metadata:
-  name: go-ethereum
-  namespace: go-ethereum
+  name: go-ethereum-service
 spec:
-  replicas: 3
   selector:
-    matchLabels:
-      app: go-ethereum
-  template:
-    metadata:
-      labels:
-        app: go-ethereum
-    spec:
-      containers:
-      - name: go-ethereum
-        image: nikolaivanovj/go-ethereum:latest
-        ports:
-        - containerPort: 8545
-        - containerPort: 8546
-        - containerPort: 30303
-        - containerPort: 30303/udp
-        command:
-        - "geth"
-        - "--http"
-        - "--http.addr"
-        - "0.0.0.0"
-        - "--http.port"
-        - "8545"
-        - "--http.api"
-        - "web3,eth,net"
-        - "--ws"
-        - "--ws.addr"
-        - "0.0.0.0"
-        - "--ws.port"
-        - "8546"
-        - "--ws.api"
-        - "web3,eth,net"
+    app: go-ethereum
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 8545
+  - name: json-rpc
+    protocol: TCP
+    port: 8545
+    targetPort: 8545
+  - name: websocket
+    protocol: TCP
+    port: 8546
+    targetPort: 8546
+  - name: p2p-tcp
+    protocol: TCP
+    port: 30303
+    targetPort: 30303
+  - name: p2p-udp
+    protocol: UDP
+    port: 30303
+    targetPort: 30303
+  type: LoadBalancer

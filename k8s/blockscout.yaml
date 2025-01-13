@@ -26,7 +26,10 @@ spec:
             cpu: "0.5"
         env:
         - name: DATABASE_URL
-          value: "postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgresql-service:5432/$(POSTGRES_DB)"
+          valueFrom:
+            secretKeyRef:
+              name: postgresql-secret
+              key: DATABASE_URL
         - name: SECRET_KEY_BASE
           valueFrom:
             secretKeyRef:

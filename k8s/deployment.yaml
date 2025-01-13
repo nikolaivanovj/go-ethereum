@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: go-ethereum
+  namespace: go-ethereum
 spec:
   replicas: 3
   selector:
@@ -19,4 +20,20 @@ spec:
         - containerPort: 8545
         - containerPort: 8546
         - containerPort: 30303
-        - containerPort: 30303
+        - containerPort: 30303/udp
+        command:
+        - "geth"
+        - "--http"
+        - "--http.addr"
+        - "0.0.0.0"
+        - "--http.port"
+        - "8545"
+        - "--http.api"
+        - "web3,eth,net"
+        - "--ws"
+        - "--ws.addr"
+        - "0.0.0.0"
+        - "--ws.port"
+        - "8546"
+        - "--ws.api"
+        - "web3,eth,net"

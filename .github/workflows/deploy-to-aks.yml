@@ -30,7 +30,11 @@ jobs:
         az login --service-principal --username $DOSPN_CLIENT_ID --password $DOSPN_CLIENT_SECRET --tenant $DOSPN_TENANT_ID
         az aks get-credentials --resource-group gethdevnetrg --name gethdevnetaks
 
-    - name: Deploy to AKS
+    - name: Deploy PostgreSQL to AKS
+      run: |
+        kubectl apply -f k8s/postgresql.yaml
+
+    - name: Deploy Blockscout to AKS
       run: |
         kubectl apply -f k8s/deployment.yaml
         kubectl apply -f k8s/service.yaml

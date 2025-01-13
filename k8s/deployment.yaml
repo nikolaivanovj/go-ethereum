@@ -16,4 +16,7 @@ spec:
       - name: go-ethereum
         image: nikolaivanovj/go-ethereum:latest
         ports:
-        - containerPort: 80
+        - containerPort: 8545
+        - containerPort: 8546
+        - containerPort: 30303
+        - containerPort: 30303

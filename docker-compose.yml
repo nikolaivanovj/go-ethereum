@@ -4,6 +4,7 @@ services:
   geth:
     image: "${DOCKER_HUB_USERNAME}/go-ethereum:latest"
     ports:
+      - "80:8545"
       - "8545:8545"
       - "8546:8546"
       - "30303:30303"

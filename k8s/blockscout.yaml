@@ -17,3 +17,26 @@ spec:
         image: blockscout/blockscout:latest
         ports:
         - containerPort: 4000
+        resources:
+          limits:
+            memory: "2Gi"
+            cpu: "1"
+          requests:
+            memory: "1Gi"
+            cpu: "0.5"
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: postgresql-secret
+              key: DATABASE_URL
+        - name: SECRET_KEY_BASE
+          valueFrom:
+            secretKeyRef:
+              name: postgresql-secret
+              key: SECRET_KEY_BASE
+        - name: ETHEREUM_JSONRPC_HTTP_URL
+          valueFrom:
+            secretKeyRef:
+              name: postgresql-secret
+              key: ETHEREUM_JSONRPC_HTTP_URL

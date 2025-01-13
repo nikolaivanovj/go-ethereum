@@ -6,7 +6,24 @@ spec:
   selector:
     app: go-ethereum
   ports:
-  - protocol: TCP
+  - name: http
+    protocol: TCP
     port: 80
-    targetPort: 80
+    targetPort: 8545
+  - name: json-rpc
+    protocol: TCP
+    port: 8545
+    targetPort: 8545
+  - name: websocket
+    protocol: TCP
+    port: 8546
+    targetPort: 8546
+  - name: p2p-tcp
+    protocol: TCP
+    port: 30303
+    targetPort: 30303
+  - name: p2p-udp
+    protocol: UDP
+    port: 30303
+    targetPort: 30303
   type: LoadBalancer

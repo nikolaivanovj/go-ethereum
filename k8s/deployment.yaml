@@ -16,4 +16,23 @@ spec:
       - name: go-ethereum
         image: nikolaivanovj/go-ethereum:latest
         ports:
-        - containerPort: 80
+        - containerPort: 8545
+        - containerPort: 8546
+        - containerPort: 30303
+        - containerPort: 30303
+        command:
+        - "geth"
+        - "--http"
+        - "--http.addr"
+        - "0.0.0.0"
+        - "--http.port"
+        - "8545"
+        - "--http.api"
+        - "web3,eth,net"
+        - "--ws"
+        - "--ws.addr"
+        - "0.0.0.0"
+        - "--ws.port"
+        - "8546"
+        - "--ws.api"
+        - "web3,eth,net"
